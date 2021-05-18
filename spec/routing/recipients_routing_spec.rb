@@ -1,0 +1,30 @@
+require "rails_helper"
+
+RSpec.describe RecipientsController, type: :routing do
+  describe "routing" do
+    it "routes to #index" do
+      expect(get: "/recipients").to route_to("recipients#index")
+    end
+
+    it "routes to #show" do
+      expect(get: "/recipients/1").to route_to("recipients#show", id: "1")
+    end
+
+
+    it "routes to #create" do
+      expect(post: "/recipients").to route_to("recipients#create")
+    end
+
+    it "routes to #update via PUT" do
+      expect(put: "/recipients/1").to route_to("recipients#update", id: "1")
+    end
+
+    it "routes to #update via PATCH" do
+      expect(patch: "/recipients/1").to route_to("recipients#update", id: "1")
+    end
+
+    it "routes to #destroy" do
+      expect(delete: "/recipients/1").to route_to("recipients#destroy", id: "1")
+    end
+  end
+end

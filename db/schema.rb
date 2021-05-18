@@ -10,10 +10,37 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_17_021801) do
+ActiveRecord::Schema.define(version: 2021_05_18_053800) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "orders", force: :cascade do |t|
+    t.string "status"
+    t.string "gift_type"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "recipients", force: :cascade do |t|
+    t.bigint "order_id"
+    t.bigint "user_id"
+    t.bigint "school_id"
+    t.string "gift"
+    t.string "address"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["order_id"], name: "index_recipients_on_order_id"
+    t.index ["school_id"], name: "index_recipients_on_school_id"
+    t.index ["user_id"], name: "index_recipients_on_user_id"
+  end
+
+  create_table "schools", force: :cascade do |t|
+    t.string "address"
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email"
