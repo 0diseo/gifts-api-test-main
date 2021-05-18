@@ -50,3 +50,5 @@ You need to start docker-compose first
 ```
 bundle exec rails s -p 3027
 ```
+
+rails db:seed
