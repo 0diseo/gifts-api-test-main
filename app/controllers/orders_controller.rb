@@ -1,9 +1,11 @@
 class OrdersController < ApplicationController
-  before_action :set_order, only: [:show, :update, :destroy]
+  before_action :set_order, only: [:show, :update, :destroy, :cancel, :Ship]
 
   # GET /orders
   def index
-    @orders = Order.all
+    @orders = params[:school_id] ?
+                Order.left_outer_joins(:recipients).where(recipients:{school_id: params[:school_id]}) :
+                Order.all
 
     render json: @orders
   end
@@ -16,7 +18,7 @@ class OrdersController < ApplicationController
   # POST /orders
   def create
     @order = Order.new(order_params)
-
+    puts @order.recipients
     if @order.save
       render json: @order, status: :created, location: @order
     else
@@ -38,6 +40,25 @@ class OrdersController < ApplicationController
     @order.destroy
   end
 
+  # PUT /orders/1/cancel
+  def cancel
+    if @order.update({status: "ORDER_CANCELLED"})
+      render json: @order
+    else
+      render json: @order.errors, status: :unprocessable_entity
+    end
+  end
+
+  # PUT /orders/1/Ship
+  def Ship
+    if @order.update({status: "ORDER_SHIPPED"})
+      #send email here
+      render json: @order
+    else
+      render json: @order.errors, status: :unprocessable_entity
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_order
@@ -46,6 +67,6 @@ class OrdersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def order_params
-      params.require(:order).permit(:status, :gift_type)
+      params.permit(:status, :gift_type, recipient_ids: [] )
     end
 end

@@ -3,7 +3,7 @@ class RecipientsController < ApplicationController
 
   # GET /recipients
   def index
-    @recipients = Recipient.all
+    @recipients = params[:school_id] ? Recipient.where(school_id: recipient_params[:school_id]) : Recipient.all
 
     render json: @recipients
   end
@@ -46,6 +46,6 @@ class RecipientsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def recipient_params
-      params.require(:recipient).permit(:user, :gift, :address)
+      params.require(:recipient).permit(:user_id, :gift, :address, :school_id, :order_id)
     end
 end
