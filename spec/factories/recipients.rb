@@ -1,6 +1,8 @@
 FactoryBot.define do
   factory :recipient do
-    user { "" }
+    user_id { "" }
+    school_id {""}
+    order_id {""}
     gift { "MyString" }
     address { "MyString" }
   end

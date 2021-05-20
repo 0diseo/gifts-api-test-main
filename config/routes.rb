@@ -6,7 +6,7 @@ Rails.application.routes.draw do
   resource :users, only:[:create]
   post "/login", to: "users#login"
   get "/auto_login", to: "users#auto_login"
-  put "/orders/:id/cancel", to: "orders#cancel"
-  put "/orders/:id/Ship", to: "orders#Ship"
+  post "/orders/:id/cancel", to: "orders#cancel"
+  post "/orders/:id/Ship", to: "orders#Ship"
 
 end

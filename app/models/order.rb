@@ -6,6 +6,7 @@ class Order < ApplicationRecord
   validates :gift_type, inclusion: { in: ALLOWED_GIFTS }
   validates :status, inclusion: { in: ALLOWED_STATUS }
   validates :recipient_ids, :length => { :minimum => 1 }
+  validates :recipient_ids, :length => { :maximum => 20 }
   validate :status_check, on: :update
 
   def status_check
