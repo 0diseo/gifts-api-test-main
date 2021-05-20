@@ -6,8 +6,8 @@ RSpec.describe "/orders", type: :request do
   let!(:recipient) { create :recipient, user_id: user.id, school_id: school.id, address: "some street" }
   let!(:other_school) { create :school, address:"street demo", name: "other school" }
   let!(:other_recipient) { create :recipient, user_id: user.id, school_id: other_school.id, address: "other street" }
-  let!(:order) { create :order, status: "ORDER_RECEIVED", gift_type: "T_SHIRT", recipient_ids: recipient.id }
-  let!(:other_order) { create :order, status: "ORDER_RECEIVED", gift_type: "T_SHIRT", recipient_ids: other_recipient.id }
+  let!(:order) { create :order, status: "ORDER_RECEIVED", recipient_ids: recipient.id }
+  let!(:other_order) { create :order, status: "ORDER_RECEIVED", recipient_ids: other_recipient.id }
 
   before do
     post login_url params: {email: "test@user.com", password: "123456"}
@@ -43,17 +43,17 @@ RSpec.describe "/orders", type: :request do
       it "creates a new Order" do
         expect {
           post orders_url,
-               params: { status: "ORDER_PROCESSING", gift_type: "HOODIE", recipient_ids: [recipient.id] },
+               params: { status: "ORDER_PROCESSING", recipient_ids: [recipient.id] },
                headers: authorization_header, as: :json
         }.to change(Order, :count).by(1)
       end
 
       it "renders a JSON response with the new order" do
         post orders_url,
-             params: { status: "ORDER_PROCESSING", gift_type: "HOODIE", recipient_ids: [recipient.id] },
+             params: { status: "ORDER_PROCESSING", recipient_ids: [recipient.id] },
              headers: authorization_header, as: :json
         expect(response).to have_http_status(:created)
-        expect(JSON.parse(response.body)).to include("status" => "ORDER_PROCESSING", "gift_type" => "HOODIE")
+        expect(JSON.parse(response.body)).to include("status" => "ORDER_PROCESSING")
       end
     end
 
@@ -69,29 +69,21 @@ RSpec.describe "/orders", type: :request do
         post orders_url,
              params: { },  headers: authorization_header, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)).to eq( "gift_type" => ["is not included in the list"],
-                                                 "recipient_ids" => ["is too short (minimum is 1 character)"],
+        expect(JSON.parse(response.body)).to eq( "recipient_ids" => ["is too short (minimum is 1 character)"],
                                                  "status" => ["is not included in the list"],
                                                  )
       end
 
-      it "return gift_type error" do
-        post orders_url,
-             params: { status: "ORDER_PROCESSING", gift_type: "invalid gift", recipient_ids: [recipient.id] },
-             headers: authorization_header, as: :json
-        expect(JSON.parse(response.body)).to eq "gift_type" => ["is not included in the list"]
-      end
-
       it "return recipient_ids error" do
         post orders_url,
-             params: { status: "ORDER_PROCESSING", gift_type: "MUG", recipient_ids: [] },
+             params: { status: "ORDER_PROCESSING", recipient_ids: [] },
              headers: authorization_header, as: :json
         expect(JSON.parse(response.body)).to eq "recipient_ids" => ["is too short (minimum is 1 character)"]
       end
 
       it "return status error" do
         post orders_url,
-             params: { status: "invalid status", gift_type: "MUG", recipient_ids: [recipient.id] },
+             params: { status: "invalid status", recipient_ids: [recipient.id] },
              headers: authorization_header, as: :json
         expect(JSON.parse(response.body)).to eq "status" => ["is not included in the list"]
       end
@@ -119,31 +111,23 @@ RSpec.describe "/orders", type: :request do
     context "with invalid parameters" do
       it "renders a JSON response with errors for the order" do
         patch order_url(order),
-              params: { status: "bad_status", gift_type: "invalid gift", recipient_ids: []},  headers: authorization_header, as: :json
+              params: { status: "bad_status", recipient_ids: []},  headers: authorization_header, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)).to eq( "gift_type" => ["is not included in the list"],
-                                                 "recipient_ids" => ["is too short (minimum is 1 character)"],
+        expect(JSON.parse(response.body)).to eq( "recipient_ids" => ["is too short (minimum is 1 character)"],
                                                  "status" => ["is not included in the list"],
                                                  )
       end
 
-      it "return gift_type error" do
-        patch order_url(order),
-             params: { status: "ORDER_PROCESSING", gift_type: "invalid gift", recipient_ids: [recipient.id] },
-             headers: authorization_header, as: :json
-        expect(JSON.parse(response.body)).to eq "gift_type" => ["is not included in the list"]
-      end
-
       it "return recipient_ids error" do
         patch order_url(order),
-             params: { status: "ORDER_PROCESSING", gift_type: "MUG", recipient_ids: [] },
+             params: { status: "ORDER_PROCESSING", recipient_ids: [] },
              headers: authorization_header, as: :json
         expect(JSON.parse(response.body)).to eq "recipient_ids" => ["is too short (minimum is 1 character)"]
       end
 
       it "return status error" do
         patch order_url(order),
-             params: { status: "invalid status", gift_type: "MUG", recipient_ids: [recipient.id] },
+             params: { status: "invalid status", recipient_ids: [recipient.id] },
              headers: authorization_header, as: :json
         expect(JSON.parse(response.body)).to eq "status" => ["is not included in the list"]
       end

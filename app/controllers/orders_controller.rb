@@ -66,6 +66,6 @@ class OrdersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def order_params
-      params.permit(:status, :gift_type, recipient_ids: [] )
+      params.permit(:status, recipient_ids: [] )
     end
 end

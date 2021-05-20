@@ -31,7 +31,7 @@ RSpec.describe "/recipients", type: :request do
       it "creates a new Recipient" do
         expect {
           post recipients_url,
-               params: { user_id: user.id, school_id: school.id, address: "some street"  }, headers: authorization_header, as: :json
+               params: { user_id: user.id, school_id: school.id, address: "some street", gift: %w[MUG T_SHIRT STICKER]  }, headers: authorization_header, as: :json
         }.to change(Recipient, :count).by(1)
       end
 
@@ -53,10 +53,26 @@ RSpec.describe "/recipients", type: :request do
 
       it "renders a JSON response with errors for the new recipient" do
         post recipients_url,
-             params: { user_id: "", address:"" }, headers: authorization_header, as: :json
+             params: { user_id: "", address:"", gift:["hola", "dos", "tres", "cuatro"] }, headers: authorization_header, as: :json
+        puts response.body
         expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)).to eq({"address" => ["can't be blank"],
+                                                 "gift" => ["is not included in the list", "is too long (maximum is 3 characters)"],
                                                  "user" => ["must exist"]})
+      end
+
+      it "return gift is not included in the list " do
+        post recipients_url,
+             params: { user_id: user.id, address:"somewhere", gift:["hola"] }, headers: authorization_header, as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body)).to eq({ "gift" => ["is not included in the list"] })
+      end
+
+      it "return gift is too long  " do
+        post recipients_url,
+             params: { user_id: user.id, address:"somewhere", gift: %w[MUG T_SHIRT HOODIE STICKER]}, headers: authorization_header, as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body)).to eq({ "gift" => ["is too long (maximum is 3 characters)"] })
       end
 
       it "return user must exist error" do

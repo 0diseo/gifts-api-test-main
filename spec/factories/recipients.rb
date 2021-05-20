@@ -3,7 +3,7 @@ FactoryBot.define do
     user_id { "" }
     school_id {""}
     order_id {""}
-    gift { "MyString" }
+    gift { [] }
     address { "MyString" }
   end
 end
